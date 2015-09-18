@@ -1,0 +1,174 @@
+%%This is a very basic article template.
+%%There is just one section and two subsections.
+\documentclass{article}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{fullpage}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{cite}
+\begin{document}
+\lstset{language=Java}
+\title{CS350 homework 2}
+\author{Yuchen Hou}
+\maketitle
+
+\section{Partition}
+\begin{lstlisting}
+Integer partition(ArrayList<Integer> A, Integer p, Integer q) {
+	if p >= q
+		return q;
+	Integer pivot = A[p]
+	Integer index = p;
+	while p < q {
+		while A[p] < pivot
+			p++;
+		while A[q] > pivot
+			q--;
+		if p < q
+			swap(A[p], A[q]);
+	}
+	swap (A[index], A[q]);
+	return q;
+}
+\end{lstlisting}
+
+\section{Insertion sort}
+This proof is independent of the initial ordering of array A, e.g. whether A is
+monotonically decreasing or not. In fact, the time complexity of inserting one
+number into an array with n-a element is always O(n).
+
+\subsection{Recursive relation}
+$T_{insert}(n) = T_{insert}(n - 1) + O(n)$
+
+\subsection{Statement}
+$T_{insert}(n) = O(n^2)$
+
+\subsection{Proof by induction}
+Induction hypothesis: $\forall m < n, T_{insert}(m) = O(m^2) < b m^2$
+\begin{align*}
+T_{insert}(n)
+&= O((n-1)^2) + O(n)\\
+&< b(n-1)^2 + an\\
+&= b n^2 + (a - 2b)n + b\\
+&< b n^2 \text{ // choose a large enough b}
+\end{align*}
+
+\section{Iqsort}
+$T_{iq}(n) = T_{partition}(n) + T_{quick}(r-1) + T_{insert}(n-r)$
+
+\subsection{Best case: A is already sorted}
+\begin{align*}
+T_{quick}(r-1) &= O((r-1)^2)\\
+T_{insert}(n-r) &= O(n-r)\\
+T_{partition}(n) &= O(n)\\
+T_{iq}(n)
+&= \min_r (T_{partition}(n) + T_{quick}(r-1) + T_{insert}(n-r))\\
+&= \min_r(cn + a(r-1)^2 + b(n-r))\\
+&= ((c+b)n -br) \text{ // choose r = 1}\\
+&< dn \text{ // choose a large enough d}\\
+\implies T_{iq} &= O(n)
+\end{align*}
+
+\subsection{Average case}
+\begin{align*}
+T_{quick}(r-1) &= O((r-1) \log (r-1))\\
+T_{insert}(n-r) &= O((n-r)^2)\\
+T_{partition}(n) &= O(n)\\
+T_{iq}(n)
+&= \sum_r (T_{partition}(n) + T_{quick}(r-1) + T_{insert}(n-r))/n\\
+&= \sum_r (cn + a (r-1) \log (r-1) + b(n-r)^2)/n\\
+&= \int_1^{n+1} (cn + a (r-1) \log (r-1) + b(n-r)^2)/n d r\\
+&< an \log_2(n)/2 - a n/(4\log_e(2)) - cn\\
+&< dn \log(n) \text{ // choose a large enough d}\\
+\implies T_{iq} &= O(n \log(n))
+\end{align*}
+
+\subsection{Worst case: A is in reverse order}
+\begin{align*}
+T_{quick}(r-1) &= O((r-1)^2)\\
+T_{insert}(n-r) &= O((n-r)^2)\\
+T_{partition}(n) &= O(n)\\
+T_{iq}(n)
+&= \max_r (T_{partition}(n) + T_{quick}(r-1) + T_{insert}(n-r))\\
+&= \max_r(cn + a(r-1)^2 + b((n-r)^2)\\
+&= \max_r (cn + bn^2 -2bnr -2ar + (a+b)r^2)\\
+&< dn^2 \text{ // choose a large enough d}\\
+\implies T_{iq} &= O(n^2)
+\end{align*}
+
+\section{Mixsort}
+
+\subsection{Best case: A is already sorted}
+
+\subsubsection{Recursive relation}
+\begin{align*}
+T_{mix}(n) &= T_{partition}(n) + T_{mix}(r-1) + T_{insert}(n-r)\\
+T_{partition}(n) &= O(n)\\
+T_{insert}(n-r) &= O(n-r)
+\end{align*}
+
+\subsubsection{Statement}
+$T_{mix}(n) = O(n)$
+
+\subsubsection{Proof by induction}
+Induction hypothesis: $\forall m < n, T_{mix}(m) = O(m ) < am$
+\begin{align*}
+T_{mix}(n)
+&= \min_r (T_{partition}(n) + T_{mix}(r-1) + T_{insert}(n-r))\\
+&< \min_r (cn + a(r-1) + b(n-r))\\
+&< cn + b(n-1) \text{ // choose a very large a, r = 1}\\
+&< (c + b)n -b\\
+&< an \text{ // choose a large enough a}\\
+\implies T_{mix}(n) &= O(n)
+\end{align*}
+
+\subsection{Average case}
+
+\subsubsection{Recursive relation}
+\begin{align*}
+T_{mix}(n) &= T_{partition}(n) + T_{mix}(r-1) + T_{insert}(n-r)\\
+T_{partition}(n) &= O(n)\\
+T_{insert}(n-r) &= O((n-r)^2)
+\end{align*}
+
+\subsubsection{Statement}
+$T_{mix}(n) = O(n \log n)$
+
+\subsubsection{Proof by induction}
+Induction hypothesis: $\forall m < n, T_{mix}(m) = O(m \log m) < am \log m$
+\begin{align*}
+T_{mix}(n)
+&= \sum_r (T_{partition}(n) + T_{mix}(r-1) + T_{insert}(n-r))/n\\
+&< \sum_r (cn + a(r-1) \log (r-1) + b(n-r)^2)/n\\
+&< \int_1^{n+1} (cn + a(r-1) \log (r-1) + b(n-r)^2)/n\\
+&= an \log(n)/2 - an/4 \log_e(2) + cn\\
+&< an \log(n) \text{ // choose a large enough a}\\
+\implies T_{mix} &= O(n \log(n))
+\end{align*}
+
+\subsection{Worst case: A is in reverse order}
+
+\subsubsection{Recursive relation}
+\begin{align*}
+T_{mix}(n) &= T_{partition}(n) + T_{mix}(r-1) + T_{insert}(n-r)\\
+T_{partition}(n) &= O(n)\\
+T_{insert}(n-r) &= O((n-r)^2)
+\end{align*}
+
+\subsubsection{Statement}
+$T_{mix}(n) = O(n^2)$
+
+\subsubsection{Proof by induction}
+Induction hypothesis: $\forall m < n, T_{mix}(m) = O(m) < am^2$
+\begin{align*}
+T_{mix}(n)
+&= \max_r (T_{partition}(n) + T_{mix}(r-1) + T_{insert}(n-r))\\
+&< \max_r(cn + a(r-1)^2 + b(n-r)^2)\\
+&= \max (cn + b(n-1)^2, cn + a(n-1)^2)\\
+&= an^2 + (c-2a)n + a \text{ // choose a very large a}\\
+&< an^2 \text{ // choose a large enough a}\\
+\implies T_{mix} &= O(n^2)
+\end{align*}
+
+\end{document}
