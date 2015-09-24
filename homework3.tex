@@ -1,0 +1,128 @@
+\documentclass{article}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{fullpage}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{cite}
+\begin{document}
+\lstset{language=Java}
+\title{CS350 homework 3}
+\author{Yuchen Hou}
+\maketitle
+\section{Selecting max and min}
+\begin{lstlisting}
+(Integer, Integer) selectMaxMin(ArrayList<Integer> A) {
+	Integer max = A[0];
+	Integer min = A[0];
+	for (Integer number: A) {
+		if (number > max) {
+			max = number;
+		}
+		else if (number < min) {
+			min = number;
+		}
+	}
+}
+\end{lstlisting}
+\section{Selecting smallest elements}
+\subsection{Using linear select}
+$T_S(i, n) = i T_{linear} = i O(n) = O(in) = a i n$
+\subsection{Using merge sort}
+$T_T(i, n) = T_{merge} + O(i) = O(n \log (n)) + O(i) = b n \log(n)$
+\subsection{Complexity comparison}
+\subsubsection{The condition for $T_T < T_S$}
+\begin{align*}
+ain &< b n \log(n)\\
+i &< \frac{b\log(n)}{a}
+\end{align*}
+\subsubsection{The condition for $T_T > T_S$}
+\begin{align*}
+i &> \frac{b\log(n)}{a}
+\end{align*}
+\section{Linear select}
+\subsection{k = 3}
+\subsubsection{Recursive relation}
+\begin{align*}
+T_{select}(n) &= T_{group}(n) + T_{select}(3)n/3 + T_{select}(n/3)
++T_{partition}(n) + T_{select}(2n/3)\\
+T_{group}(n) &= O(n)\\
+T_{partition}(n) &= O(n)
+\end{align*}
+\subsubsection{Statement}
+$T_{select}(n) = O(n \log (n))$
+\subsubsection{Proof by induction}
+Induction hypothesis: $\forall m < n, T_{select}(m) = O(m\log(m)) < am\log(m)$
+\begin{align*}
+T_{select}(n)
+&= bn + \frac{an}{3}\log(n/3) + \frac{2an}{3}\log(2n/3)\\
+&= bn + \frac{an}{3}(\log(n) - \log(3)) + \frac{2an}{3}(\log(2)+\log(n)-\log(3))\\
+&= bn + an \log(n) + \frac{an}{3}(2\log(2)-3\log(3))\\
+&= an \log(n) + n(\frac{a}{3}(2\log(2)-3\log(3)) + b)\\
+&< an \log(n) \text{ // choose a large enough a}\\
+\implies T_{select}(n) &= O(n \log(n))
+\end{align*}
+\subsection{k = 7}
+\subsubsection{Recursive relation}
+\begin{align*}
+T_{select}(n) &= T_{group}(n) + T_{select}(7)n/7 + T_{select}(n/7)
++T_{partition}(n) + T_{select}(5n/7)\\
+T_{group}(n) &= O(n)\\
+T_{partition}(n) &= O(n)
+\end{align*}
+\subsubsection{Statement}
+$T_{select}(n) = O(n)$
+\subsubsection{Proof by induction}
+Induction hypothesis: $\forall m < n, T_{select}(m) = O(m) < am$
+\begin{align*}
+T_{select}(n)
+&= bn + an/7 + a5n/7\\
+&= bn + an6/7\\
+&< an \text{ // choose a large enough a}\\
+\implies T_{select}(n) &= O(n)
+\end{align*}
+\section{ilselect}
+\begin{align*}
+T_{ilselect}
+&= \frac{1}{n} \sum_r (T_{partition}(n) + \frac{1}{n}O(1) +
+\frac{r-1}{n}T_{quick}(r-1) + \frac{n-r}{n}T_{linear}(n-r))\\
+&= \frac{1}{n} \sum_r (O(n) + \frac{1}{n}O(1) + \frac{r-1}{n}T_{quick}(r-1) +
+\frac{n-r}{n}T_{linear}(n-r))\\
+&= O(n) + \frac{1}{n} \sum_r (\frac{r-1}{n}T_{quick}(r-1) +
+\frac{n-r}{n}T_{linear}(n-r))
+\end{align*}
+\subsection{Worst case}
+\begin{align*}
+T_{quick}(n) &= O(n^2) = an^2\\
+T_{linear}(n) &= O(n) = bn\\
+T_{ilselect}
+&= O(n) + \frac{1}{n} \sum_r (\frac{r-1}{n}T_{quick}(r-1) +
+\frac{n-r}{n}T_{linear}(n-r))\\
+&= O(n) + \frac{1}{n} \sum_r (a\frac{(r-1)^3}{n} + b\frac{(n-r)^2}{n})\\
+&= O(n) + \frac{1}{n^2} \sum_r (a(r-1)^3 + b(n-r)^2)\\
+&< O(n) + \frac{1}{n^2} \int_r (a(r-1)^3 + b(n-r)^2)dr\\
+&= O(n) + \frac{1}{n^2} O(n^4)\\
+&= O(n^2)
+\end{align*}
+\subsection{Average case}
+\begin{align*}
+T_{quick}(n) &= O(n) = an\\
+T_{linear}(n) &= O(n) = bn\\
+T_{ilselect}
+&= O(n) + \frac{1}{n} \sum_r (\frac{r-1}{n}T_{quick}(r-1) +
+\frac{n-r}{n}T_{linear}(n-r))\\
+&= O(n) + \frac{1}{n} \sum_r (a\frac{(r-1)^2}{n} + b\frac{(n-r)^2}{n})\\
+&= O(n) + \frac{1}{n^2} \sum_r (a(r-1)^2 + b(n-r)^2)\\
+&< O(n) + \frac{1}{n^2} \int_r (a(r-1)^2 + b(n-r)^2)dr\\
+&= O(n) + \frac{1}{n^2} O(n^3)\\
+&= O(n)
+\end{align*}
+\section{5 comparison}
+\begin{align*}
+S &= \log(n!)\\
+\delta S &= \log(5!)\\
+operation\#
+&= \frac{S}{\delta S}\\
+&= \frac{\log(n!)}{\log(5!)}
+\end{align*}
+\end{document}
