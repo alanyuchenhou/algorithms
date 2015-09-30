@@ -34,7 +34,7 @@ Integer partition(ArrayList<Integer> A, Integer p, Integer q) {
 \section{Insertion sort}
 This proof is independent of the initial ordering of array A, e.g. whether A is
 monotonically decreasing or not. In fact, the time complexity of inserting one
-number into an array with n-a element is always O(n).
+number into an array with n-a element is always $O(n^2)$.
 
 \subsection{Recursive relation}
 $T_{insert}(n) = T_{insert}(n - 1) + O(n)$
@@ -74,12 +74,12 @@ T_{quick}(r-1) &= O((r-1) \log (r-1))\\
 T_{insert}(n-r) &= O((n-r)^2)\\
 T_{partition}(n) &= O(n)\\
 T_{iq}(n)
-&= \sum_r (T_{partition}(n) + T_{quick}(r-1) + T_{insert}(n-r))/n\\
-&= \sum_r (cn + a (r-1) \log (r-1) + b(n-r)^2)/n\\
-&= \int_1^{n+1} (cn + a (r-1) \log (r-1) + b(n-r)^2)/n d r\\
-&< an \log_2(n)/2 - a n/(4\log_e(2)) - cn\\
-&< dn \log(n) \text{ // choose a large enough d}\\
-\implies T_{iq} &= O(n \log(n))
+&= \sum_r \frac{1}{n}(T_{partition}(n) + T_{quick}(r-1) + T_{insert}(n-r))\\
+&= \sum_r \frac{1}{n}(cn + a (r-1) \log (r-1) + b(n-r)^2)\\
+&= \int_1^{n+1} \frac{1}{n}(cn + a (r-1) \log (r-1) + b(n-r)^2) d r\\
+&< \frac{a}{2} n \log_2(n) - a n/(4\log_e(2)) + cn + \frac{b}{3} n^2 \\
+&< dn^2 \text{ // choose a large enough d}\\
+\implies T_{iq} &= O(n^2)
 \end{align*}
 
 \subsection{Worst case: A is in reverse order}
@@ -131,18 +131,18 @@ T_{insert}(n-r) &= O((n-r)^2)
 \end{align*}
 
 \subsubsection{Statement}
-$T_{mix}(n) = O(n \log n)$
+$T_{mix}(n) = O(n^2)$
 
 \subsubsection{Proof by induction}
-Induction hypothesis: $\forall m < n, T_{mix}(m) = O(m \log m) < am \log m$
+Induction hypothesis: $\forall m < n, T_{mix}(m) = O(m^2) < am^2$
 \begin{align*}
 T_{mix}(n)
-&= \sum_r (T_{partition}(n) + T_{mix}(r-1) + T_{insert}(n-r))/n\\
-&< \sum_r (cn + a(r-1) \log (r-1) + b(n-r)^2)/n\\
-&< \int_1^{n+1} (cn + a(r-1) \log (r-1) + b(n-r)^2)/n\\
-&= an \log(n)/2 - an/4 \log_e(2) + cn\\
-&< an \log(n) \text{ // choose a large enough a}\\
-\implies T_{mix} &= O(n \log(n))
+&= \sum_r \frac{1}{n}(T_{partition}(n) + T_{mix}(r-1) + T_{insert}(n-r))\\
+&< \sum_r \frac{1}{n}(cn + a(r-1)^2 + b(n-r)^2)\\
+&< \int_1^{n+1} \frac{1}{n}(cn + a(r-1)^2 + b(n-r)^2) dr\\
+&< \frac{a}{3} n^2 + cn + \frac{b}{3} n^2 \\
+&< an^2 \text{ // choose a large enough a}\\
+\implies T_{mix} &= O(n^2)
 \end{align*}
 
 \subsection{Worst case: A is in reverse order}
