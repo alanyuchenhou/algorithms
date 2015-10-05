@@ -1,0 +1,212 @@
+\documentclass{article}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{fullpage}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{cite}
+\begin{document}
+\lstset{language=Java}
+\title{CS350 homework 4}
+\author{Yuchen Hou}
+\maketitle
+
+\section{Bad closest pair}
+\subsection{Recursive relation}
+Assume $A_1$ has r points. So $A_2$ has n-r points. Then
+\begin{align*}
+T_{bad}(n,r) &= T_{split}(n) + T_{bad}(r) + T_{bad}(n-r) + T_{boundary}(r, n)\\
+T_{split}(n) &= O(n)\\
+T_{boundary}(n) &= O(r(n-r))
+\end{align*}
+\subsection{Statement}
+$T_{bad}(n) = O(n^2)$
+\subsection{Proof by induction}
+r follows binomial distribution:
+\begin{align*}
+r \sim B(n, p)
+\end{align*}
+and its probability mass function is:
+\begin{align*}
+f(r, n, p)
+&= \binom{n}{r}p^r(1-p)^{(n-r)}\\
+&=\frac{n!}{r!(n-r)!}(\frac{1}{2})^n\\
+\end{align*}
+When n is large enough, a reasonable approximation to B(n, p) is normal
+distribution:
+\begin{align*}
+r &\sim N(\mu, \sigma^2)\\
+\mu &= np = \frac{n}{2} \\
+\sigma^2 &= np(1-p) = \frac{n}{4}\\
+\sigma &= \frac{\sqrt{n}}{2}
+\end{align*}
+and its probability density function is:
+\begin{align*}
+f(r, \mu, \sigma)
+&= \frac{1}{\sigma \sqrt{2\pi}}\exp(-\frac{(r-\mu)^2}{2\sigma^2})\\
+f(r, n, p)
+&= \frac{1}{\frac{\sqrt{n}}{2}
+\sqrt{2\pi}}\exp(-\frac{(r-\frac{n}{2})^2}{2(\frac{\sqrt{n}}{2})^2})\\
+&=\frac{\sqrt{2}}{\sqrt{n\pi}}\exp(-2\frac{(r-\frac{n}{2})^2}{n})\\
+\end{align*}
+Induction hypothesis: $\forall m < n, T_{bad}(m) =
+O(m^2) < am^2$
+\begin{align*}
+T_{bad}(n)
+&= \sum_r P(r, n) T_{bad}(n,r)\\
+&= \sum_r f(r, n, p) (O(n) + O(r^2) + O((n-r)^2) + O(r(n-r)))\\
+&= \sum_r \frac{\sqrt{2}}{\sqrt{n\pi}}\exp(-2\frac{(r-\frac{n}{2})^2}{n})(bn +
+ar^2 + a(n-r)^2 + cr(n-r))\\
+&= \frac{\sqrt{2}}{\sqrt{n\pi}} \int_r \exp(-2\frac{(r-\frac{n}{2})^2}{n})(bn +
+ar^2 + a(n-r)^2 + cr(n-r)) dr\\
+&< \sqrt{\frac{2}{\pi}}(\frac{2}{3}an^2 + \frac{1}{6}cn^2 + bn)\\
+&< an^2 \text{ // choose a large enough a} \\
+\implies T_{bad} &= O(n^2)
+\end{align*}
+\section{Naive Karatsuba algorithm}
+In the worst case, for the ith multiplication:
+\begin{align*}
+\vert \beta_i \vert = in
+\end{align*}
+and the time complexity for each multiplication uising Karatsuba algorithm is:
+\begin{align*}
+T_k(\vert \beta_i \vert) = O(\vert \beta_i \vert^{1.59}) < a (in)^{1.59}
+\end{align*}
+And the total time complexity is:
+\begin{align*}
+T_{naive}(n)
+&= \sum_i T_k(\vert \beta_i \vert)\\
+&< \sum_i a (in)^{1.59}\\
+&= a n^{1.59} \sum_i  i^{1.59}\\
+&= a n^{1.59} \int_i  i^{1.59} di\\
+&= a n^{1.59} b n^{2.59} di\\
+&= c n^{4.18}\\
+\implies T_{naive}(n) &= O(n^{4.18})
+\end{align*}
+\section{Better Karatsuba algorithm}
+Let a = 1.59. From Karatsuma algorithm:
+\begin{align*}
+T_k(n) = O(n^a) < bn^a
+\end{align*}
+This recursive algorithm essentially applys Karatsuma algorithm to pairs
+of string with length n, 2n, 4n, 8n ... nn. And its total time cost is the sum
+of all the time costs of Karatsuma multiplications.
+\begin{align*}
+T_{better}(n)&= \frac{n}{2}T_k(n) \text{ // $\frac{n}{2}$ multiplications for
+strings with length n} \\
+&+ \frac{n}{4}T_k(2n) \text{ // $\frac{n}{4}$ multiplications for strings with
+length 2n} \\
+&+ \frac{n}{8}T_k(4n) \text{ // $\frac{n}{8}$ multiplications for strings with
+length 4n} \\
+& \ldots \\
+&+ \frac{n}{2^{i}}T_k(2^{i-1}n) \text{ // $\frac{n}{2^{i}}$ multiplications
+for strings with length $2^{i-1}n$} \\
+& \ldots \\
+&+ \frac{n}{n}T_k(2^{\log n -1}n) \text{ // $1$ multiplications for
+strings with length $2^{\log n -1}n$} \\
+&= \sum_{i = 1}^{\log n} \frac{n}{2^{i}} T_k(2^{i-1}n) \\
+&< \sum_{i = 1}^{\log n} \frac{n}{2^{i}} b(2^{i-1}n)^a \\
+&< bn^{a+1} \sum_{i = 1}^{\log n} \frac{1}{2^{i}} (2^{i-1})^a \\
+&< \frac{bn^{a+1}}{2} \sum_{i = 1}^{\log n} \frac{1}{2^{i-1}} (2^a)^{i-1} \\
+&< \frac{bn^{a+1}}{2} \sum_{i = 0}^{\log n - 1} \frac{1}{2^i} (2^a)^i \\
+&< \frac{bn^{a+1}}{2} \sum_{i = 0}^{\log n - 1} (2^{a-1})^i \\
+&= \frac{bn^{a+1}}{2} \frac{1- z^{\log n}}{1 - z}
+\end{align*}
+where $z = 2^{a-1} = 2^{0.59}$. Thus
+\begin{align*}
+T_{better}(n) = c n^{2.59} n^{0.59} = O(n^{3.18})
+\end{align*}
+\section{Closest airplanes}
+\subsection{Senario descriptions}
+Because $d \leq n$, all points(airplanes) are within a ball of diameter n and
+center P. This ball is bounded by a cube of dimension (n, n, n) and center P.
+The volume of the cube is
+\begin{align*}
+V = n^3
+\end{align*}
+This cube can be divided into $n^3$ unit cubes with dimension (1, 1, 1). Because
+$d \geq 1$, each cube can contain at most 8 points. Assume the closest pair has
+disdance x. As there are same amount of points and cubes, either every cube has
+exactely 1 point or one cube has more than 1 points. Eitherway, the closest
+pair must be in the same cube or adjacent cubes.
+\subsection{Algorithm}
+\begin{lstlisting}
+(Point, Point) findClosestPair(ArrayList<Point> points) {
+	closestDistance = 1000n;
+	Point p1 = NULL;
+	Point p2 = NULL;
+	for (Point point1: points) {
+		for (Point point2: point1.findAllPointsInAdjacentCubes() {
+			if (distance(point1, point2) < closestDistance) {
+				p1 = point1;
+				p2 = point2;
+				closestDistance = distance(point1, point2);
+			}
+		}
+	}
+	return (p1, p2);
+}
+\end{lstlisting}
+\subsection{Time complexity}
+The outer for loop has $n^3$ iterations and the inner for loop has at most $8
+\times 27$ iterations (8 points per cube, 27 adjacent cubes, at maximum).
+All the processing within the inner loop and function
+findAllPointsInAdjacentCubes() cost time O(1). So the total time complexity is
+\begin{align*}
+T_{close}(n^3) = n^3 8 \times 27 O(1) = O(n^3)
+\end{align*}
+\section{Closest strings}
+This problem can be formulated as a closest points problem. Every string S can
+be represented as a point P(x, y):
+\begin{align*}
+x =& \#_a(S)\\
+y =& \#_b(S)\\
+x <& m // because \vert S \vert < m \\
+y <& m // because \vert S \vert < m \\
+d(S_1, S_2) =& (x_1-x_2)^2 + (y_1-y_2)^2 \geq 1
+\end{align*}
+Therefore, all points are in a square of dimension $(m, m)$. Notice that for the
+preprocessing, the conversion of a string to a point has time complexity
+O(m), and the conversion of all strings has time complexity O(n m). There are 2
+senarios:
+\subsection{$n \leq m^2$}
+\subsubsection{Algorithm}
+In this senario, standard closest pair algorithm can meet the requirement.
+\subsubsection{Time complexity}
+\begin{align*}
+T_{close}(n) =& O (n \log n) < a n \log n < a n \sqrt{n} \leq a n m\\
+T_{close}(n) =& O(nm)
+\end{align*}
+\subsection{$n > m^2$}
+The sqaure of dimension (m, m) can be divided into $m^2$ unit squares with
+dimension (1, 1). Because $d(S_1, S_2) \geq 1$, each square can contain at most
+4 points. As there are more points(n) than sqaures($m^2$), one square has more
+than 1 points, and the closest pair must be in the same square or adjacent squares.
+\subsubsection{Algorithm}
+\begin{lstlisting}
+(Point, Point) findClosestPair(ArrayList<Point> points) {
+	closestDistance = 1000m;
+	Point p1 = NULL;
+	Point p2 = NULL;
+	for (Point point1: points) {
+		for (Point point2: point1.findAllPointsInAdjacentSqaures() {
+			if (distance(point1, point2) < closestDistance) {
+				p1 = point1;
+				p2 = point2;
+				closestDistance = distance(point1, point2);
+			}
+		}
+	}
+	return (p1, p2);
+}
+\end{lstlisting}
+\subsubsection{Time complexity}
+The outer for loop has $n$ iterations for all the points and the inner for loop
+has at most $8 \times 9 = 72$ iterations (4 points per sqaure, 9 adjacent
+squares, at maximum). All the processing within the inner loop and function
+findAllPointsInAdjacentSqaures() cost time O(1). So the total time
+complexity(including the preprocessing) is
+\begin{align*}
+T_{close}(n) = n 72 O(1) + O(nm) = O(nm)
+\end{align*}
+\end{document}
