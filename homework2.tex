@@ -57,13 +57,13 @@ $T_{iq}(n) = T_{partition}(n) + T_{quick}(r-1) + T_{insert}(n-r)$
 
 \subsection{Best case: A is already sorted}
 \begin{align*}
-T_{quick}(r-1) &= O((r-1)^2)\\
+T_{quick}(r-1) &= O((r-1) \log (r-1))\\
 T_{insert}(n-r) &= O(n-r)\\
 T_{partition}(n) &= O(n)\\
 T_{iq}(n)
 &= \min_r (T_{partition}(n) + T_{quick}(r-1) + T_{insert}(n-r))\\
-&= \min_r(cn + a(r-1)^2 + b(n-r))\\
-&= ((c+b)n -br) \text{ // choose r = 1}\\
+&= \min_r(cn + a(r-1) \log (r-1) + b(n-r))\\
+&= ((c+b)n -b) \text{ // choose r = 1}\\
 &< dn \text{ // choose a large enough d}\\
 \implies T_{iq} &= O(n)
 \end{align*}

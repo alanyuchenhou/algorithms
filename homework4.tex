@@ -15,13 +15,11 @@
 \subsection{Recursive relation}
 Assume $A_1$ has r points. So $A_2$ has n-r points. Then
 \begin{align*}
-T_{bad}(n,r) &= T_{split}(n) + T_{bad}(r) + T_{bad}(n-r) + T_{boundary}(r, n)\\
+T_{bad}(n) &= \sum_r P(r) (T_{bad}(r) + T_{bad}(n-r) + T_{boundary}(r, n))\\
 T_{split}(n) &= O(n)\\
-T_{boundary}(n) &= O(r(n-r))
+T_{boundary}(r, n) &= O(r(n-r))
 \end{align*}
-\subsection{Statement}
-$T_{bad}(n) = O(n^2)$
-\subsection{Proof by induction}
+\subsection{probability}
 r follows binomial distribution:
 \begin{align*}
 r \sim B(n, p)
@@ -47,21 +45,24 @@ f(r, \mu, \sigma)
 f(r, n, p)
 &= \frac{1}{\frac{\sqrt{n}}{2}
 \sqrt{2\pi}}\exp(-\frac{(r-\frac{n}{2})^2}{2(\frac{\sqrt{n}}{2})^2})\\
-&=\frac{\sqrt{2}}{\sqrt{n\pi}}\exp(-2\frac{(r-\frac{n}{2})^2}{n})\\
+&=\frac{\sqrt{2}}{\sqrt{n\pi}}\exp(-2\frac{(r-\frac{n}{2})^2}{n}) = P(r)
 \end{align*}
-Induction hypothesis: $\forall m < n, T_{bad}(m) =
-O(m^2) < am^2$
+\subsection{Statement}
+$T_{bad}(n) = O(n^2 \log n)$
+\subsection{Proof by induction}
+Induction hypothesis: $\forall m < n, T_{bad}(m) = O(m^2 \log m) < am^2 \log m$
 \begin{align*}
 T_{bad}(n)
-&= \sum_r P(r, n) T_{bad}(n,r)\\
-&= \sum_r f(r, n, p) (O(n) + O(r^2) + O((n-r)^2) + O(r(n-r)))\\
-&= \sum_r \frac{\sqrt{2}}{\sqrt{n\pi}}\exp(-2\frac{(r-\frac{n}{2})^2}{n})(bn +
-ar^2 + a(n-r)^2 + cr(n-r))\\
-&= \frac{\sqrt{2}}{\sqrt{n\pi}} \int_r \exp(-2\frac{(r-\frac{n}{2})^2}{n})(bn +
-ar^2 + a(n-r)^2 + cr(n-r)) dr\\
-&< \sqrt{\frac{2}{\pi}}(\frac{2}{3}an^2 + \frac{1}{6}cn^2 + bn)\\
-&< an^2 \text{ // choose a large enough a} \\
-\implies T_{bad} &= O(n^2)
+&= T_{split}(n) + \sum_r P(r) (T_{bad}(r) + T_{bad}(n-r) + T_{boundary}(r, n))\\
+&= O(n) + \sum_r f(r, n, p) (O(r^2 \log r) + O((n-r)^2 \log (n-r)) +
+O(r(n-r)))\\
+&= O(n) + \sum_r \frac{\sqrt{2}}{\sqrt{n\pi}}
+\exp(-2\frac{(r-\frac{n}{2})^2}{n})(ar^2 \log r + a(n-r)^2 \log (n-r) + cr(n-r))\\
+&= O(n) + \frac{\sqrt{2}}{\sqrt{n\pi}} \int_r
+\exp(-2\frac{(r-\frac{n}{2})^2}{n})(ar^2 \log r + a(n-r)^2 \log (n-r) + cr(n-r)) dr\\
+&\ldots\\
+&< an^2 \log n \text{ // choose a large enough a} \\
+\implies T_{bad} &= O(n^2 \log n)
 \end{align*}
 \section{Naive Karatsuba algorithm}
 In the worst case, for the ith multiplication:
@@ -169,44 +170,19 @@ Therefore, all points are in a square of dimension $(m, m)$. Notice that for the
 preprocessing, the conversion of a string to a point has time complexity
 O(m), and the conversion of all strings has time complexity O(n m). There are 2
 senarios:
-\subsection{$n \leq m^2$}
-\subsubsection{Algorithm}
+\subsection{$\log n \leq m$}
 In this senario, standard closest pair algorithm can meet the requirement.
-\subsubsection{Time complexity}
 \begin{align*}
-T_{close}(n) =& O (n \log n) < a n \log n < a n \sqrt{n} \leq a n m\\
-T_{close}(n) =& O(nm)
+T_{close}(n) =& O(nm) + O(n \log n) \leq O(nm) + O(n m) = O(nm)
 \end{align*}
-\subsection{$n > m^2$}
-The sqaure of dimension (m, m) can be divided into $m^2$ unit squares with
-dimension (1, 1). Because $d(S_1, S_2) \geq 1$, each square can contain at most
-4 points. As there are more points(n) than sqaures($m^2$), one square has more
-than 1 points, and the closest pair must be in the same square or adjacent squares.
-\subsubsection{Algorithm}
-\begin{lstlisting}
-(Point, Point) findClosestPair(ArrayList<Point> points) {
-	closestDistance = 1000m;
-	Point p1 = NULL;
-	Point p2 = NULL;
-	for (Point point1: points) {
-		for (Point point2: point1.findAllPointsInAdjacentSqaures() {
-			if (distance(point1, point2) < closestDistance) {
-				p1 = point1;
-				p2 = point2;
-				closestDistance = distance(point1, point2);
-			}
-		}
-	}
-	return (p1, p2);
-}
-\end{lstlisting}
-\subsubsection{Time complexity}
-The outer for loop has $n$ iterations for all the points and the inner for loop
-has at most $8 \times 9 = 72$ iterations (4 points per sqaure, 9 adjacent
-squares, at maximum). All the processing within the inner loop and function
-findAllPointsInAdjacentSqaures() cost time O(1). So the total time
-complexity(including the preprocessing) is
+\subsection{$\log n > m$}
 \begin{align*}
-T_{close}(n) = n 72 O(1) + O(nm) = O(nm)
+n &> 2^m \implies n > m^2
+\end{align*}
+In this senario, the number of words are greater than the number of points.
+Therefore, at least 2 words are mapped to the same point. The distance of
+closest pair must be 0.
+\begin{align*}
+T_{close}(n) =& O(nm) + O(1) = O(nm)
 \end{align*}
 \end{document}

@@ -15,12 +15,21 @@
 (Integer, Integer) selectMaxMin(ArrayList<Integer> A) {
 	Integer max = A[0];
 	Integer min = A[0];
-	for (Integer number: A) {
-		if (number > max) {
-			max = number;
+	Integer big = A[0];
+	Integer small = A[0];
+	for (Integer index = 0; index < A.getLength(); index += 2) {
+		if (A[index] > A[index+1]) {
+			big = A[index];
+			small = A[index+1];
+		} else {
+			big = A[index+1];
+			small = A[index];
 		}
-		else if (number < min) {
-			min = number;
+		if (big > max) {
+			max = big;
+		}
+		if (small < min) {
+			min = small;
 		}
 	}
 }
@@ -82,38 +91,29 @@ T_{select}(n)
 \implies T_{select}(n) &= O(n)
 \end{align*}
 \section{ilselect}
-\begin{align*}
-T_{ilselect}
-&= \frac{1}{n} \sum_r (T_{partition}(n) + \frac{1}{n}O(1) +
-\frac{r-1}{n}T_{quick}(r-1) + \frac{n-r}{n}T_{linear}(n-r))\\
-&= \frac{1}{n} \sum_r (O(n) + \frac{1}{n}O(1) + \frac{r-1}{n}T_{quick}(r-1) +
-\frac{n-r}{n}T_{linear}(n-r))\\
-&= O(n) + \frac{1}{n} \sum_r (\frac{r-1}{n}T_{quick}(r-1) +
-\frac{n-r}{n}T_{linear}(n-r))
-\end{align*}
 \subsection{Worst case}
 \begin{align*}
-T_{quick}(n) &= O(n^2) = an^2\\
-T_{linear}(n) &= O(n) = bn\\
+T_{partition}(n) &= O(n)\\
+T_{quick}(n) &= O(n^2)\\
+T_{linear}(n) &= O(n)\\
 T_{ilselect}
-&= O(n) + \frac{1}{n} \sum_r (\frac{r-1}{n}T_{quick}(r-1) +
-\frac{n-r}{n}T_{linear}(n-r))\\
-&= O(n) + \frac{1}{n} \sum_r (a\frac{(r-1)^3}{n} + b\frac{(n-r)^2}{n})\\
-&= O(n) + \frac{1}{n^2} \sum_r (a(r-1)^3 + b(n-r)^2)\\
-&< O(n) + \frac{1}{n^2} \int_r (a(r-1)^3 + b(n-r)^2)dr\\
-&= O(n) + \frac{1}{n^2} O(n^4)\\
-&= O(n^2)
+&= T_{partition}(n) + \max_r (T_{quick}(r), T_{linear}(n-r))\\
+&= O(n) + \max_r (O(r^2), O(n-r))\\
+&= O(n^2) \text{ // choose r = n}
 \end{align*}
 \subsection{Average case}
 \begin{align*}
-T_{quick}(n) &= O(n) = an\\
-T_{linear}(n) &= O(n) = bn\\
-T_{ilselect}
-&= O(n) + \frac{1}{n} \sum_r (\frac{r-1}{n}T_{quick}(r-1) +
+T_{quick}(n) &= O(n)\\
+T_{linear}(n) &= O(n)\\
+T_{partition}(n) &= O(n)\\
+T_{ilselect}(n)
+&= T_{partition}(n) + \sum_r P(r) (P(i < r)T_{quick}(r) + P(i > r)
+T_{linear}(n-r))\\
+&= T_{partition}(n) + \frac{1}{n} \sum_r (\frac{r}{n}T_{quick}(r) +
 \frac{n-r}{n}T_{linear}(n-r))\\
-&= O(n) + \frac{1}{n} \sum_r (a\frac{(r-1)^2}{n} + b\frac{(n-r)^2}{n})\\
-&= O(n) + \frac{1}{n^2} \sum_r (a(r-1)^2 + b(n-r)^2)\\
-&< O(n) + \frac{1}{n^2} \int_r (a(r-1)^2 + b(n-r)^2)dr\\
+&= O(n) + \frac{1}{n} \sum_r (\frac{O(r^2)}{n} + \frac{O((n-r)^2)}{n})\\
+&= O(n) + \frac{1}{n^2} \sum_r (O(r^2) + O((n-r)^2)\\
+&< O(n) + \frac{1}{n^2} \int_r (O(r^2) + O((n-r)^2)dr\\
 &= O(n) + \frac{1}{n^2} O(n^3)\\
 &= O(n)
 \end{align*}
