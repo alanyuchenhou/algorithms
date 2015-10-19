@@ -1,0 +1,76 @@
+\documentclass{article}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{fullpage}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{cite}
+\begin{document}
+\lstset{language=Java}
+\title{CS350 homework 6}
+\author{Yuchen Hou}
+\maketitle
+\section{Longest common subsequence for strings with constrains}
+Assume the length of $\alpha, \beta$ are $v_1, v_2$. Assume the size of
+the alphabet is $v_0$. The following algorithm with (time complexity noted) can
+find $\gamma$. Note that in this problem an FA is viewed as a graph and M(x, y)
+is the notation for FA M with x nodes and y edges.
+\begin{description}
+  \item[$O(v_1^2)$] construct FA $M_1(O(v_1), O(v_1^2))$ to accept all
+  subsequences of $\alpha$ using skipping method
+  \item[$O(v_2^2)$] construct FA $M_2(O(v_2), O(v_2^2))$ to accept all
+  subsequences of $\beta$ using skipping method
+  \item[$O(v_0)$] construct FA $M_3(O(v_0), O(v_0))$ to accept all strings
+  containing substring abb using Kleene theorem
+  \item[$O(v_0)$] construct FA $M_4(O(v_0), O(v_0)) = \overline{M_3}$ using
+  the method formulated in cs317 homework3 problem3
+  \item[$O(v_1^2v_2^2v_0)$] construct FA $M_5(O(v_0v_1v_2), O(v_1^2 + v_2^2 +
+  v0)) = M_1 \cap M_2 \cap M_4$ using Cartesian product method ($M_1, M_2$
+  accept only finite strings, so $M_5$ accpets only finite strings, so it's a
+  DAG)
+  \item[$O(v_1^2v_2^2v_0)$] find the longest acceptable string for $M_5$ and
+  return it as $\gamma$ using longest path algorithm for DAG
+\end{description}
+The time complexity is the sum of all above steps: $O(v_1^2v_2^2v_0)$.
+\section{Longest common subsequence for languages}
+The following algorithm can compute the number D. In this problem, an FA is
+veiwed as a graph.
+\begin{enumerate}
+  \item construct FA $M_1$ to accept all subsequences of strings in $L_1$ using
+  skipping method discussed in class
+  \item construct FA $M_2$ to accept all subsequences of strings in $L_2$ using
+  skipping method discussed in class
+  \item construct FA $M_3  = M_1 \cap M_2$ using Cartesian product method
+  \item partitian $M_3$ into SCCs
+  \item for every SCC, delete it if the initial state can't reach it or it can't
+  reach any final state
+  \item if any remaining SCC has any loop, return infinity as D; otherwise $M_3$
+  is a DAG, return the longest acceptable string length for $M_3$ as D using
+  longest path algorithm for DAG
+\end{enumerate}
+\section{Longest common subsequence for quasi strings}
+Every point in a circle can be represented as a 3-tuple: (radius, color, angle).
+The following algorithm returns true if the 2 circles are similar and returns
+false if they are not.
+\begin{enumerate}
+  \item sort all points in $C_1$ by radius, then by color(any ordering for
+  color works), then by angle, and copy the sorted points into an array $S_1$
+  and conceal their angle attributes from following operations(3-tuples become
+  2-tuples); do the same for $C_2$ (into an array $S_2$)
+  \item regard the 2 arrays as 2 strings and every point in them as a
+  character(regard 2 points as same characters if their 2-tuple representation
+  are the same)
+  \item construct FA $M_1$ that accpets all subsequences of string $S_1$
+  \item construct FA $M_2$ that accpets all subsequences of string $S_2$
+  \item construct FA $M_3  = M_1 \cap M_2$ using Cartesian product method
+  \item $M_1, M_2$ accept only finite strings, so $M_3$ accpets only finite
+  strings, so it's a DAG
+  \item find all acceptable strings longer than k for $M_3$ using DFS for DAG
+  and put all strings into a set L
+  \item loop through every string s in L, do this: (reveal the angle
+  attribute pair(one for the point in C1, one for the point in C2) for every character c in s, calculate
+  the diffrences of the pair and mod them by $2 \pi$; if all these differences
+  are the same, return true); if the loop finishes without returning true,
+  return false
+\end{enumerate}
+\end{document}
