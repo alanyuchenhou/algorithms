@@ -1,0 +1,100 @@
+\documentclass{article}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{fullpage}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{cite}
+\begin{document}
+\lstset{language=Java, tabsize=4}
+\title{CS350 homework 7}
+\author{Yuchen Hou}
+\maketitle
+\section{SCC}
+The following algorithm answers the question.
+\begin{lstlisting}
+Boolean answer(Graph G, Node v, Node v1) {
+	for (Set<Node> scc: G.partitionIntoSCC()) {
+		if (scc.getSize() > 1) {
+			return false;
+		}
+	}
+	return true;
+}
+\end{lstlisting}
+The worst case performance is O(V + E), where V is the node count and E is the
+edge count.
+\section{Shortest paths}
+The following algorithm answers the question.
+\begin{lstlisting}
+Boolean answer(Graph G, Node v, Node v1) {
+	for (Edge e: G.getAllEdges()) {
+		if (e.getColor() == "red") {
+			e.setWeight(1);
+		} else if (e.getColor() == "green") {
+			e.setWeight(-1);
+		} else {
+			e.setWeight(0);
+		}
+	}
+	// Bellman Ford shortest paths algorithm raises NegativeCycleException
+	when it detects a negative cycle
+	try {
+		if (BellmanFordShortestPaths(G, v).getCost(v1) > 0) {
+			return true;
+		} else {
+			return false;
+		}
+	} catch (NegativeCycleException e) {
+		return false;
+	}
+}
+\end{lstlisting}
+\section{Shortest paths}
+The following algorithm answers the question.
+\begin{lstlisting}
+Boolean answer(Graph G, Node v, Node v1) {
+	if (minColorCount(G, v, v1, "red") >= 4 && minColorCount(G, v, v1,
+	"green" >= 4) {
+		return true;
+	} else {
+		return false;
+	}
+}
+Integer minColorCount(Graph G, Node v, Node v1, Color color) {
+	for (Edge e: G.getAllEdges()) {
+		if (e.getColor() == color) {
+			e.setWeight(1);
+		} else {
+			e.setWeight(0);
+		}
+	}
+	return shortestPaths(G, v).getCost(v1);
+}
+\end{lstlisting}
+\section{Shortest paths}
+The following algorithm answers the question.
+\begin{lstlisting}
+Boolean answer(Graph G, Node s0) {
+	if s0.isGood() {
+		return true;
+	}
+	for (Node n: G.getAllNodes()) {
+		if (n.isGood()) {
+			G.removeNode(n);
+		}
+	}
+	for (Edge e: G.getAllEdges()) {
+		e.setWeight(-1);
+	}
+	// Bellman Ford shortest paths algorithm raises NegativeCycleException
+	when it detects a negative cycle
+	try {
+		BellmanFordShortestPaths(G, s0).getAllCosts();
+		return true;
+	} catch (NegativeCycleException e) {
+		return false;
+	}
+}
+\end{lstlisting}
+\end{document}
