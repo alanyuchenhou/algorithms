@@ -10,134 +10,66 @@
 \title{CS350 homework 7}
 \author{Yuchen Hou}
 \maketitle
-\section{SCC}
-The following algorithm answers the question.
+\section{Symbolic graphs}
 \begin{lstlisting}
-Boolean answer(Graph G, Node v, Node v1) {
-	for (Set<Node> scc: G.partitionIntoSCC()) {
-		if (scc.getSize() > 1) {
-			return false;
-		}
-	}
-	return true;
-}
-\end{lstlisting}
-The worst case performance is O(V + E), where V is the node count and E is the
-edge count.
-\section{Shortest paths}
-The following algorithm answers the question.
-\begin{lstlisting}
-Boolean answer(Graph G, Node v, Node v1) {
-	for (Edge e: G.getAllEdges()) {
-		if (e.getColor() == "red") {
-			e.setWeight(1);
-		} else if (e.getColor() == "green") {
-			e.setWeight(-1);
-		} else {
-			e.setWeight(0);
-		}
-	}
-	// Bellman Ford shortest paths algorithm raises NegativeCycleException
-	when it detects a negative cycle
-	try {
-		if (BellmanFordShortestPaths(G, v).getCost(v1) > 0) {
+Boolean hasLoop(BooleanFormula R) {
+	BooleanFormula R* = iterativeCompose(R); // algorithm given in class
+	for (NodeEncoding x : range(0, 2^k)) {
+		if (R*(x, x) == true) {
 			return true;
-		} else {
-			return false;
 		}
-	} catch (NegativeCycleException e) {
-		return false;
 	}
+	return false;
 }
 \end{lstlisting}
-\section{Shortest paths}
-The following algorithm answers the question.
+\section{Minimum spanning tree}
+Simply grow the tree G' into a MST of G using Prim's MST algorithm.
 \begin{lstlisting}
-Boolean answer(Graph G, Node v, Node v1) {
-	if (minColorCount(G, v, v1, "red") >= 4 && minColorCount(G, v, v1,
-	"green" >= 4) {
-		return true;
-	} else {
-		return false;
+Tree MST(Graph G, Tree G1) {
+	// regard G1 as the explored region
+	// construct a TreeMap for (unexplored node, shortest edge to G1) pairs
+	// which are sorted by weights of the edges
+	// it's like a combination of a priority queue and a map
+	// if an unexplored node has no edge to G1
+	// assign it an edge to G1 with infinite weight
+	Map<Node, Edge> unexploredRegion = new TreeMap<Node, Edge>;
+	for (Node node: G.getNodes() - G1.getNodes()): {
+		unexploredRegion.put(node, node.getShortestEdgeTo(G1));
 	}
-}
-Integer minColorCount(Graph G, Node v, Node v1, Color color) {
-	for (Edge e: G.getAllEdges()) {
-		if (e.getColor() == color) {
-			e.setWeight(1);
-		} else {
-			e.setWeight(0);
+	while (unexploredRegion.isNotEmpty()) {
+		(Node, Edge) (node, edge) = unexploredRegion.dequeue();
+		G1.add(node);
+		G1.add(edge);
+		for (Edge edge: G.getEdgesOf(node)) {
+			Node node = G.getDestinationNodeof(edge);
+			if (unexploredRegion.hasNode(node) &&
+				unexploredRegion.get(node).getWeight() > edge.getWeight()) {
+					unexploredRegion.put(node, edge);
+			}
 		}
 	}
-	return shortestPaths(G, v).getCost(v1);
+	return G1;
 }
 \end{lstlisting}
-\section{Shortest paths}
-The following algorithm answers the question.
-\begin{lstlisting}
-Boolean answer(Graph G, Node s0) {
-	if s0.isGood() {
-		return true;
-	}
-	for (Node n: G.getAllNodes()) {
-		if (n.isGood()) {
-			G.removeNode(n);
-		}
-	}
-	for (Edge e: G.getAllEdges()) {
-		e.setWeight(-1);
-	}
-	// Bellman Ford shortest paths algorithm raises NegativeCycleException
-	when it detects a negative cycle
-	try {
-		BellmanFordShortestPaths(G, s0).getAllCosts();
-		return true;
-	} catch (NegativeCycleException e) {
-		return false;
-	}
-}
-\end{lstlisting}
-\section{Generalization of question 1}
-\subsection{Question}
-In general, we can have m colors: $color_1, color_2, color_3 \ldots color_m$;
-and question1 becomes: is it true that, for every path from v to v', the
-following requirement is satisfied:
-\begin{align*}
-k_1c_1 + k_2c_2 + k_3c_3 \ldots k_nc_n > k_0
-\end{align*}
-where $n < m$, and k's are constants and $c_i$ is the number of edges with
-$color_i$ in the path.
-\subsection{Answer}
-We convert this problem to a search problem with total cost defined as:
-\begin{align*}
-cost = k_1c_1 + k_2c_2 + k_3c_3 ... k_nc_n
-\end{align*}
-where edges with $color_i$ has weight $k_i$ (edges with colors that do not
-exist in the requiremnt have weight 0). So the original problem is equivalent
-to: is it ture, for every path from v to v', the path cost is greater than
-$k_0$? Furthermore, this problem is equivalent to: is the cost of shortest path
-from v to v' greater than $k_0$? Now the problem can be solved using
-Bellman-Ford shortest paths algorithm:
-\begin{lstlisting}
-Map<Color, Weight> colorWeightMap = {
-	color_1: k_1,
-	color_2: k_2,
-	...
-	color_n: k_n
-}
-Boolean answer(Graph G, Node v, Node v1) {
-	for (Edge e: G.getAllEdges()) {
-		e.setWeight(colorWeightMap.get(e.getColor()));
-	}
-	try {
-		if (BellmanFordShortestPaths(G, v).getCost(v1) > k_0) {
-			return true;
-		} else {
-			return false;
-		}
-	} catch (NegativeCycleException e) {
-		return false;
-	}
-}
-\end{lstlisting}
+\section{Regular language constrained shortest paths}
+The color requirement (the total number of green edges and yellow edges is at
+least 5) can be formulated as a regular language constraint L for the shortest
+paths. The following algorithm can find a shortest path from A to B satisfying
+the constraint L.
+\begin{enumerate}
+  \item regard G as an NFA $M_2 = (S_2, \Sigma_2, \delta_2, source,
+  destination)$, where $\Sigma_2 = \{(color, weight): color \in \Sigma_1\}$
+  \item construct an NFA $M_1 = (S_1, \Sigma_1, \delta_1, s_0, F)$ to accept
+  L, where $\Sigma_1 = \{(color, *): color \in \Sigma_1\}$ (add a wildcard
+  weight to every transition and convert the character in every transition from
+  a 1-tuple (color) into a 2-tuple: (color, weight), in order to match those in
+  $M-2$)
+  \item construct $M_3 = M_1 \times M_2$ (notice that the character in every
+  transition is a 2-tuple: (color, weight))
+  \item regard $M_3$ as a graph, every edge as 2 attributes: color and weight
+  as in the transitions in $M_3$; find a shortest path P from $(s_0, source)$ to
+  $(f, destination)$ among all $f \in F$
+  \item return P as the result
+
+\end{enumerate}
 \end{document}
