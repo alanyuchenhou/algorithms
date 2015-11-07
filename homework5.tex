@@ -16,16 +16,16 @@ the alphabet is $v_0$. The following algorithm with (time complexity noted) can
 find $\gamma$. Note that in this problem an FA is viewed as a graph and M(x, y)
 is the notation for FA M with x nodes and y edges.
 \begin{description}
-  \item[$O(v_1^2)$] construct FA $M_1(O(v_1), O(v_1^2))$ to accept all
+  \item[$O(v_1^2)$] construct FA $M_1(O(v_1), O(v_1))$ to accept all
   subsequences of $\alpha$ using skipping method
-  \item[$O(v_2^2)$] construct FA $M_2(O(v_2), O(v_2^2))$ to accept all
+  \item[$O(v_2^2)$] construct FA $M_2(O(v_2), O(v_2))$ to accept all
   subsequences of $\beta$ using skipping method
   \item[$O(v_0)$] construct FA $M_3(O(v_0), O(v_0))$ to accept all strings
   containing substring abb using Kleene theorem
   \item[$O(v_0)$] construct FA $M_4(O(v_0), O(v_0)) = \overline{M_3}$ using
   the method formulated in cs317 homework3 problem3
-  \item[$O(v_1^2v_2^2v_0)$] construct FA $M_5(O(v_0v_1v_2), O(v_1^2 + v_2^2 +
-  v0)) = M_1 \cap M_2 \cap M_4$ using Cartesian product method ($M_1, M_2$
+  \item[$O(v_1v_2v_0)$] construct FA $M_5(O(v_0v_1v_2), O(v_1 + v_2 +
+  v_0)) = M_1 \cap M_2 \cap M_4$ using Cartesian product method ($M_1, M_2$
   accept only finite strings, so $M_5$ accpets only finite strings, so it's a
   DAG)
   \item[$O(v_1^2v_2^2v_0)$] find the longest acceptable string for $M_5$ and
@@ -40,7 +40,8 @@ veiwed as a graph.
   skipping method discussed in class
   \item construct FA $M_2$ to accept all subsequences of strings in $L_2$ using
   skipping method discussed in class
-  \item construct FA $M_3  = M_1 \cap M_2$ using Cartesian product method
+  \item construct FA $M_3  = M_1 \cap M_2$ using Cartesian product method and
+  perform $\lambda$ elimination
   \item partitian $M_3$ into SCCs
   \item for every SCC, delete it if the initial state can't reach it or it can't
   reach any final state
