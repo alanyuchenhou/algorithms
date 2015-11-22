@@ -1,0 +1,54 @@
+\documentclass{article}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{fullpage}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{cite}
+\begin{document}
+\lstset{language=Java, tabsize=4}
+\title{CS350 homework 8}
+\author{Yuchen Hou}
+\maketitle
+\section{RSA}
+Steps:
+\begin{enumerate}
+  \item fractor n into p and q: p = 43481; q = 242399;
+  \item calculate private key = (d = 385818449, n = 10539750919);
+  \item encode cipher text to cipher code: 4739112828 4663943684 5483262135
+  \item decrypt cipher code to plain code: 2883783099 456562021 9711147868
+  \item decode plain code to plain text: exxgtxg0!! iorore0ea !taaaitxrx
+\end{enumerate}
+Reference:
+\begin{enumerate}
+  \item online factorization database: http://factordb.com
+  \item online equation solver: http://www.wolframalpha.com
+\end{enumerate}
+\section{n-ary Huffman coding}
+Assume the algorithm uses n digits to encode a character set. This algorithm
+uses a priority queue where the node with lowest probability is given highest
+priority. Initially, the queue only contains one node for every character. The
+Huffman tree also contains one node for every character. The algorithm runs as
+follows:
+\begin{lstlisting}
+while (queue is not empty) {
+	dequeue n nodes;
+	create a parent node for these n nodes;
+	assign a unique digit to every edge from the parent to its children
+	assign the sum of probabilities of the children to that of the parent;
+	enqueue the parent;
+}
+The code of each character is the path from the root to its node.
+\end{lstlisting}
+\section{Security protocols}
+A few current techniques are as follows:
+\begin{enumerate}
+  \item Key agreement or establishment
+  \item Entity authentication
+  \item Symmetric encryption and message authentication material construction
+  \item Secured application-level data transport
+  \item Non-repudiation methods
+  \item Secret sharing methods
+  \item Secure multi-party computation
+\end{enumerate}
+\end{document}
