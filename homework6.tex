@@ -97,47 +97,4 @@ Boolean answer(Graph G, Node s0) {
 	}
 }
 \end{lstlisting}
-\section{Generalization of question 1}
-\subsection{Question}
-In general, we can have m colors: $color_1, color_2, color_3 \ldots color_m$;
-and question1 becomes: is it true that, for every path from v to v', the
-following requirement is satisfied:
-\begin{align*}
-k_1c_1 + k_2c_2 + k_3c_3 \ldots k_nc_n > k_0
-\end{align*}
-where $n < m$, and k's are constants and $c_i$ is the number of edges with
-$color_i$ in the path.
-\subsection{Answer}
-We convert this problem to a search problem with total cost defined as:
-\begin{align*}
-cost = k_1c_1 + k_2c_2 + k_3c_3 ... k_nc_n
-\end{align*}
-where edges with $color_i$ has weight $k_i$ (edges with colors that do not
-exist in the requiremnt have weight 0). So the original problem is equivalent
-to: is it ture, for every path from v to v', the path cost is greater than
-$k_0$? Furthermore, this problem is equivalent to: is the cost of shortest path
-from v to v' greater than $k_0$? Now the problem can be solved using
-Bellman-Ford shortest paths algorithm:
-\begin{lstlisting}
-Map<Color, Weight> colorWeightMap = {
-	color_1: k_1,
-	color_2: k_2,
-	...
-	color_n: k_n
-}
-Boolean answer(Graph G, Node v, Node v1) {
-	for (Edge e: G.getAllEdges()) {
-		e.setWeight(colorWeightMap.get(e.getColor()));
-	}
-	try {
-		if (BellmanFordShortestPaths(G, v).getCost(v1) > k_0) {
-			return true;
-		} else {
-			return false;
-		}
-	} catch (NegativeCycleException e) {
-		return false;
-	}
-}
-\end{lstlisting}
 \end{document}

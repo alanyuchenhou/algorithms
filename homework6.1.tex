@@ -1,0 +1,53 @@
+\documentclass{article}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{fullpage}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{cite}
+\begin{document}
+\lstset{language=Java, tabsize=4}
+\title{CS350 homework 6 generalization}
+\author{Yuchen Hou}
+\maketitle
+\section{Problem}
+This is a generalization of homework 6 problem 2. Suppose G(V, E) is a decorated
+graph. Each edge in G has a color attribute. The color attribute has m posible
+values: $color_1, color_2, color_3 \ldots color_m$. Design a algorithm to
+answer this question: is it true that, for every path p from v to v', the
+following requirement is satisfied:
+\begin{align*}
+f(p) = k_1c_1 + k_2c_2 + k_3c_3 \ldots k_nc_n > k_0
+\end{align*}
+where $n < m$, and k's are constants and $c_i$ is the number of edges with
+$color_i$ in the path.
+\section{Algorithm}
+This problem can be solved in 2 steps. The steps and the time complexity of each
+step are as follows:
+\begin{description}
+  \item[O(e)] assign each edge a weight attribute: edges with $color_i$ have
+  weight $k_i$; edges with colors that do not exist in the requiremnt have
+  weight 0 (we don't care about these colors);
+  \item[O(ve)] compute the length of the shortest path from v to v'; if the
+  length is greater than $k_0$, the answer is yes; otherwise, the answer is no;
+\end{description}
+The total time complexity is O(ve).
+\section{Proof}
+After assigning a weight attribute to each edge, the
+length of a path p is
+\begin{align*}
+length(p) = k_1c_1 + k_2c_2 + k_3c_3 ... k_nc_n = f(p)
+\end{align*}
+So the original question is equivalent to: is it ture that, $\forall$ path p
+from v to v' $length(p) > k_0$, which is equivalent to: is the length
+of the shortest path from v to v' greater than $k_0$, which can then be
+efficiently solved using shortest path algorithm.
+\section{Handle negative cycles}
+If there are negative cycles on the path, G will not have a shortest path. In
+this case, the correct answer is no and this algorithm will still give the
+correct answer as long as the shortest path algorithm it uses can detect negative cycles (e.g.
+Bellman-Ford shortest paths algorithm). Specifically, the shortest path
+algorithm can indicate the existence of a negative cycle by either raising an
+exception or return $-\infty$. In either way, the condition - the shortest
+path length greater than $k_0$ - will not be met and the algorithm answers no.
+\end{document}
