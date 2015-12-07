@@ -1,0 +1,83 @@
+\documentclass{article}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{fullpage}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{cite}
+\begin{document}
+\lstset{language=Java, tabsize=4}
+\title{CS350 homework 9}
+\author{Yuchen Hou}
+\maketitle
+
+\section{NP reduction}
+We have the following observations:
+\begin{align*}
+A \leq_m B \implies \exists T_1 \land \forall x_1 A(x_1) == yes \iff B(T_1(x_1))
+== yes \\
+B \leq_m C \implies \exists T_2 \land \forall x_2 B(x_2) == yes \iff C(T_2(x_2))
+== yes
+\end{align*}
+where $T_i$ is a deterministic polinomial time algorithm. Now we construct
+another deterministic polinomial time algorithm: $T_3(x_1) = T_2(T_1(x_1))$. We
+have:
+\begin{align*}
+&\forall x_1 A(x_1) == yes \iff B(T_1(x_1)) == yes \iff C(T_2(T_1(x_1))) == yes
+\iff C(T_3(x_1)) == yes \\
+&\implies A \leq_m C
+\end{align*}
+
+\section{NP solution}
+\begin{lstlisting}
+Boolean Q(G) {
+	guess(path); // nondeterministic O(p(|G|)
+	if (check(G, path) == yes) // deterministic O(p(|G|)
+		return yes;
+	else
+		crash;
+}
+\end{lstlisting}
+Note:
+\begin{enumerate}
+  \item guess(path): returns a path on G such that every node in G is covered
+  exactely once
+  \item check(G, path): returns yes if path is on G and path covers every node
+  in G exactly once
+\end{enumerate}
+
+\section{NP solution}
+\begin{lstlisting}
+Boolean Q(G) {
+	guess(path); // nondeterministic O(p(|G|)
+	if (check(G, path) == yes) // deterministic O(p(|G|)
+		return yes;
+	else
+		crash;
+}
+\end{lstlisting}
+Note:
+\begin{enumerate}
+  \item guess(path): returns a path on G such that every node in G is covered
+  \item check(G, path): returns yes if path is on G and path covers every node
+  in G
+\end{enumerate}
+
+\section{SAT}
+\begin{lstlisting}
+Boolean isEquivalent(C1, C2) {
+	C3 = makeXnor(C1, C2); // deterministic O(p(|C1|+|C2|)
+	if (isSatisfiable(C3)) { // deterministic O(p(|C1|+|C2|)
+		return false;
+	} else {
+		return true;
+	}
+}
+\end{lstlisting}
+Note: makeXnor function creates a new circuit C3, which feeds its input $x = (x_1,
+\ldots x_n)$ to the input of C1 and C2, then feeds the output of C1 and C2 to a
+xnor gate X, and feeds the output of X to the output of C3. Now C1 and
+C2 are equivalent $\iff \forall x C1(x) == C2(x) \iff \forall x C3(x) == flase
+\iff !isSatisfiable(C3)$.
+
+\end{document}
