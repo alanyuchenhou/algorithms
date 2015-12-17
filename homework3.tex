@@ -6,10 +6,11 @@
 \usepackage{graphicx}
 \usepackage{cite}
 \begin{document}
-\lstset{language=Java}
+\lstset{language=Java, tabsize=4}
 \title{CS350 homework 3}
 \author{Yuchen Hou}
 \maketitle
+
 \section{Selecting max and min}
 \begin{lstlisting}
 (Integer, Integer) selectMaxMin(ArrayList<Integer> A) {
@@ -17,7 +18,7 @@
 	Integer min = A[0];
 	Integer big = A[0];
 	Integer small = A[0];
-	for (Integer index = 0; index < A.getLength(); index += 2) {
+	for (Integer index = 0; index < n; index += 2) {
 		if (A[index] > A[index+1]) {
 			big = A[index];
 			small = A[index+1];
@@ -32,11 +33,13 @@
 			min = small;
 		}
 	}
+	return (max, min);
 }
 \end{lstlisting}
+
 \section{Selecting smallest elements}
 \subsection{Using linear select}
-$T_S(i, n) = i T_{linear} = i O(n) = O(in) = a i n$
+$T_S(i, n) = i T_{linear}(n) = i O(n) = O(in) = a i n$
 \subsection{Using merge sort}
 $T_T(i, n) = T_{merge} + O(i) = O(n \log (n)) + O(i) = b n \log(n)$
 \subsection{Complexity comparison}
@@ -49,14 +52,15 @@ i &< \frac{b\log(n)}{a}
 \begin{align*}
 i &> \frac{b\log(n)}{a}
 \end{align*}
+
 \section{Linear select}
 \subsection{k = 3}
 \subsubsection{Recursive relation}
 \begin{align*}
-T_{select}(n) &= T_{group}(n) + T_{select}(3)n/3 + T_{select}(n/3)
-+T_{partition}(n) + T_{select}(2n/3)\\
-T_{group}(n) &= O(n)\\
-T_{partition}(n) &= O(n)
+T_{select}(n) &= T_{group}(n) + \frac{n}{3}T_{sort}(3) + T_{select}(\frac{n}{3})
++T_{partition}(n) + T_{select}(n - \frac{2}{2}\frac{n}{3})\\
+T_{group}(m) &= O(m)\\
+T_{partition}(m) &= O(m)
 \end{align*}
 \subsubsection{Statement}
 $T_{select}(n) = O(n \log (n))$
@@ -64,20 +68,20 @@ $T_{select}(n) = O(n \log (n))$
 Induction hypothesis: $\forall m < n, T_{select}(m) = O(m\log(m)) < am\log(m)$
 \begin{align*}
 T_{select}(n)
-&= bn + \frac{an}{3}\log(n/3) + \frac{2an}{3}\log(2n/3)\\
-&= bn + \frac{an}{3}(\log(n) - \log(3)) + \frac{2an}{3}(\log(2)+\log(n)-\log(3))\\
-&= bn + an \log(n) + \frac{an}{3}(2\log(2)-3\log(3))\\
-&= an \log(n) + n(\frac{a}{3}(2\log(2)-3\log(3)) + b)\\
-&< an \log(n) \text{ // choose a large enough a}\\
+&< bn + a\frac{n}{3}\log(\frac{n}{3}) + a\frac{2n}{3}\log(\frac{2n}{3})\\
+&= bn + a\frac{n}{3}(\log(n) - \log(3)) +
+a \frac{2n}{3}(\log(2)+\log(n)-\log(3))\\
+&= bn + an \log(n) + a\frac{n}{3}(2\log(2)-3\log(3))\\
+&< an \log(n) //choose \ a >> b \\
 \implies T_{select}(n) &= O(n \log(n))
 \end{align*}
 \subsection{k = 7}
 \subsubsection{Recursive relation}
 \begin{align*}
-T_{select}(n) &= T_{group}(n) + T_{select}(7)n/7 + T_{select}(n/7)
-+T_{partition}(n) + T_{select}(5n/7)\\
-T_{group}(n) &= O(n)\\
-T_{partition}(n) &= O(n)
+T_{select}(n) &= T_{group}(n) + \frac{n}{7}T_{sort}(7) + T_{select}(\frac{n}{7})
++T_{partition}(n) + T_{select}(n-\frac{4}{2}\frac{n}{7})\\
+T_{group}(m) &= O(m)\\
+T_{partition}(m) &= O(m)
 \end{align*}
 \subsubsection{Statement}
 $T_{select}(n) = O(n)$
@@ -85,21 +89,22 @@ $T_{select}(n) = O(n)$
 Induction hypothesis: $\forall m < n, T_{select}(m) = O(m) < am$
 \begin{align*}
 T_{select}(n)
-&= bn + an/7 + a5n/7\\
-&= bn + an6/7\\
-&< an \text{ // choose a large enough a}\\
+&= bn + a\frac{n}{7} + a\frac{5n}{7}\\
+&= bn + a\frac{6n}{7}\\
+&< an // choose \ a >> b\\
 \implies T_{select}(n) &= O(n)
 \end{align*}
+
 \section{ilselect}
 \subsection{Worst case}
 \begin{align*}
-T_{partition}(n) &= O(n)\\
-T_{quick}(n) &= O(n^2)\\
-T_{linear}(n) &= O(n)\\
-T_{ilselect}
+T_{partition}(m) &= O(m)\\
+T_{quick}(m) &= O(m^2)\\
+T_{linear}(m) &= O(m)\\
+T_{ilselect}(n)
 &= T_{partition}(n) + \max_r (T_{quick}(r), T_{linear}(n-r))\\
 &= O(n) + \max_r (O(r^2), O(n-r))\\
-&= O(n^2) \text{ // choose r = n}
+&= O(n^2) // choose \ r = n
 \end{align*}
 \subsection{Average case}
 \begin{align*}
@@ -109,14 +114,13 @@ T_{partition}(n) &= O(n)\\
 T_{ilselect}(n)
 &= T_{partition}(n) + \sum_r P(r) (P(i < r)T_{quick}(r) + P(i > r)
 T_{linear}(n-r))\\
-&= T_{partition}(n) + \frac{1}{n} \sum_r (\frac{r}{n}T_{quick}(r) +
-\frac{n-r}{n}T_{linear}(n-r))\\
-&= O(n) + \frac{1}{n} \sum_r (\frac{O(r^2)}{n} + \frac{O((n-r)^2)}{n})\\
+&= O(n) + \frac{1}{n} \sum_r (\frac{r}{n}O(r) + \frac{n-r}{n}O(n-r))\\
 &= O(n) + \frac{1}{n^2} \sum_r (O(r^2) + O((n-r)^2)\\
 &< O(n) + \frac{1}{n^2} \int_r (O(r^2) + O((n-r)^2)dr\\
 &= O(n) + \frac{1}{n^2} O(n^3)\\
 &= O(n)
 \end{align*}
+
 \section{5 comparison}
 \begin{align*}
 S &= \log(n!)\\

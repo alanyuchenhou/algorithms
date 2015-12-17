@@ -10,10 +10,11 @@
 \title{CS350 homework 7}
 \author{Yuchen Hou}
 \maketitle
+
 \section{Symbolic graphs}
 \begin{lstlisting}
 Boolean hasLoop(BooleanFormula R) {
-	BooleanFormula R* = iterativeCompose(R); // algorithm given in class
+	BooleanFormula R* = iterativeCompose(R);
 	for (NodeEncoding x : range(0, 2^k)) {
 		if (R*(x, x) == true) {
 			return true;
@@ -22,8 +23,9 @@ Boolean hasLoop(BooleanFormula R) {
 	return false;
 }
 \end{lstlisting}
-\section{Minimum spanning tree}
-Simply grow the tree G' into a MST of G using Prim's MST algorithm.
+
+\section{MST}
+Simply grow the tree G1 into a MST of G using Prim's MST algorithm.
 \begin{lstlisting}
 Tree MST(Graph G, Tree G1) {
 	// regard G1 as the explored region
@@ -51,25 +53,18 @@ Tree MST(Graph G, Tree G1) {
 	return G1;
 }
 \end{lstlisting}
-\section{Regular language constrained shortest paths}
-The color requirement (the total number of green edges and yellow edges is at
-least 5) can be formulated as a regular language constraint L for the shortest
-paths. The following algorithm can find a shortest path from A to B satisfying
-the constraint L.
-\begin{enumerate}
-  \item regard G as an NFA $M_2 = (S_2, \Sigma_2, \delta_2, source,
-  destination)$, where $\Sigma_2 = \{(color, weight): color \in \Sigma_1\}$
-  \item construct an NFA $M_1 = (S_1, \Sigma_1, \delta_1, s_0, F)$ to accept
-  L, where $\Sigma_1 = \{(color, *): color \in \Sigma_1\}$ (add a wildcard
-  weight to every transition and convert the character in every transition from
-  a 1-tuple (color) into a 2-tuple: (color, weight), in order to match those in
-  $M-2$)
-  \item construct $M_3 = M_1 \times M_2$ (notice that the character in every
-  transition is a 2-tuple: (color, weight))
-  \item regard $M_3$ as a graph, every edge as 2 attributes: color and weight
-  as in the transitions in $M_3$; find a shortest path P from $(s_0, source)$ to
-  $(f, destination)$ among all $f \in F$
-  \item return P as the result
 
+\section{Shortest paths with constraints}
+The following algorithm can find a shortest path from A to B satisfying the
+constraint.
+\begin{enumerate}
+  \item construct FA $M_1$ accepting Reg $L_1$ = \{paths (edge sequences) with
+  the total number of green edges and yellow edges at least 5\} (every edge has
+  a wildcard weight to match any weight);
+  \item regard G as FA $M_2$ accepting Reg $L_2$ = \{paths (edge sequences) from
+  A to B\};
+  \item construct FA $M_3 = M_1 \times M_2$ accepting Reg $L_3 = L_1 \cap L_2$;
+  \item return the shortest string $M_3$ accepts using shortest path algorithm;
 \end{enumerate}
+
 \end{document}

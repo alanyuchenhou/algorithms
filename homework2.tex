@@ -6,7 +6,7 @@
 \usepackage{graphicx}
 \usepackage{cite}
 \begin{document}
-\lstset{language=Java}
+\lstset{language=Java, tabsize=4}
 \title{CS350 homework 2}
 \author{Yuchen Hou}
 \maketitle
@@ -14,17 +14,21 @@
 \section{Partition}
 \begin{lstlisting}
 Integer partition(ArrayList<Integer> A, Integer p, Integer q) {
-	if p >= q
+	if (p >= q) {
 		return q;
+	}
 	Integer pivot = A[p]
 	Integer index = p;
-	while p < q {
-		while A[p] < pivot
+	while (p < q) {
+		while (A[p] < pivot) {
 			p++;
-		while A[q] > pivot
+		}
+		while (A[q] > pivot) {
 			q--;
-		if p < q
+		}
+		if (p < q) {
 			swap(A[p], A[q]);
+		}
 	}
 	swap (A[index], A[q]);
 	return q;
@@ -32,9 +36,8 @@ Integer partition(ArrayList<Integer> A, Integer p, Integer q) {
 \end{lstlisting}
 
 \section{Insertion sort}
-This proof is independent of the initial ordering of array A, e.g. whether A is
-monotonically decreasing or not. In fact, the time complexity of inserting one
-number into an array with n-a element is always $O(n^2)$.
+This proof is independent of the initial ordering of array A. In fact, the
+average and worst case time complexity of insertion sort are both $O(n^2)$.
 
 \subsection{Recursive relation}
 $T_{insert}(n) = T_{insert}(n - 1) + O(n)$
@@ -49,61 +52,54 @@ T_{insert}(n)
 &= O((n-1)^2) + O(n)\\
 &< b(n-1)^2 + an\\
 &= b n^2 + (a - 2b)n + b\\
-&< b n^2 \text{ // choose a large enough b}
+&< b n^2 //choose \ b >> a
 \end{align*}
 
 \section{Iqsort}
-$T_{iq}(n) = T_{partition}(n) + T_{quick}(r-1) + T_{insert}(n-r)$
 
-\subsection{Best case: A is already sorted}
+\subsection{Best case: A is in order}
 \begin{align*}
-T_{quick}(r-1) &= O((r-1) \log (r-1))\\
-T_{insert}(n-r) &= O(n-r)\\
-T_{partition}(n) &= O(n)\\
+T_{quick}(m) &= O(m \log(m))\\
+T_{insert}(m) &= O(m)\\
+T_{partition}(m) &= O(m)\\
 T_{iq}(n)
-&= \min_r (T_{partition}(n) + T_{quick}(r-1) + T_{insert}(n-r))\\
-&= \min_r(cn + a(r-1) \log (r-1) + b(n-r))\\
-&= ((c+b)n -b) \text{ // choose r = 1}\\
-&< dn \text{ // choose a large enough d}\\
-\implies T_{iq} &= O(n)
+&= \min_r (T_{partition}(n) + T_{quick}(r) + T_{insert}(n-r))\\
+&= \min_r(O(n) + O(r \log(r)) + O(n-r))\\
+&= O(n) // choose \ r = 1
 \end{align*}
 
 \subsection{Average case}
 \begin{align*}
-T_{quick}(r-1) &= O((r-1) \log (r-1))\\
-T_{insert}(n-r) &= O((n-r)^2)\\
-T_{partition}(n) &= O(n)\\
+T_{quick}(m) &= O(m \log(m))\\
+T_{insert}(m) &= O(m^2)\\
+T_{partition}(m) &= O(m)\\
 T_{iq}(n)
-&= \sum_r \frac{1}{n}(T_{partition}(n) + T_{quick}(r-1) + T_{insert}(n-r))\\
-&= \sum_r \frac{1}{n}(cn + a (r-1) \log (r-1) + b(n-r)^2)\\
-&= \int_1^{n+1} \frac{1}{n}(cn + a (r-1) \log (r-1) + b(n-r)^2) d r\\
-&< \frac{a}{2} n \log_2(n) - a n/(4\log_e(2)) + cn + \frac{b}{3} n^2 \\
-&< dn^2 \text{ // choose a large enough d}\\
-\implies T_{iq} &= O(n^2)
+&= \sum_r \frac{1}{n}(T_{partition}(n) + T_{quick}(r) + T_{insert}(n-r))\\
+&= \sum_r \frac{1}{n} (O(n) + O(r \log(r)) + O((n-r)^2))\\
+&= \int_1^{n+1} \frac{1}{n} (O(n) + O(r \log(r)) + O((n-r)^2)) d r\\
+&= O(n^2)
 \end{align*}
 
 \subsection{Worst case: A is in reverse order}
 \begin{align*}
-T_{quick}(r-1) &= O((r-1)^2)\\
-T_{insert}(n-r) &= O((n-r)^2)\\
-T_{partition}(n) &= O(n)\\
+T_{quick}(m) &= O(m^2)\\
+T_{insert}(m) &= O(m^2)\\
+T_{partition}(m) &= O(m)\\
 T_{iq}(n)
-&= \max_r (T_{partition}(n) + T_{quick}(r-1) + T_{insert}(n-r))\\
-&= \max_r(cn + a(r-1)^2 + b((n-r)^2)\\
-&= \max_r (cn + bn^2 -2bnr -2ar + (a+b)r^2)\\
-&< dn^2 \text{ // choose a large enough d}\\
-\implies T_{iq} &= O(n^2)
+&= \max_r (T_{partition}(n) + T_{quick}(r) + T_{insert}(n-r))\\
+&= \max_r(O(n) + O(r^2) + O((n-r)^2))\\
+&= O(n^2) // choose \ r = n
 \end{align*}
 
 \section{Mixsort}
 
-\subsection{Best case: A is already sorted}
+\subsection{Best case: A is in order}
 
 \subsubsection{Recursive relation}
 \begin{align*}
-T_{mix}(n) &= T_{partition}(n) + T_{mix}(r-1) + T_{insert}(n-r)\\
-T_{partition}(n) &= O(n)\\
-T_{insert}(n-r) &= O(n-r)
+T_{mix}(n) &= \min_r (T_{partition}(n) + T_{mix}(r) + T_{insert}(n-r))\\
+T_{partition}(m) &= O(m)\\
+T_{insert}(m) &= O(m)
 \end{align*}
 
 \subsubsection{Statement}
@@ -113,11 +109,9 @@ $T_{mix}(n) = O(n)$
 Induction hypothesis: $\forall m < n, T_{mix}(m) = O(m ) < am$
 \begin{align*}
 T_{mix}(n)
-&= \min_r (T_{partition}(n) + T_{mix}(r-1) + T_{insert}(n-r))\\
-&< \min_r (cn + a(r-1) + b(n-r))\\
-&< cn + b(n-1) \text{ // choose a very large a, r = 1}\\
-&< (c + b)n -b\\
-&< an \text{ // choose a large enough a}\\
+&< \min_r (cn + ar + b(n-r))\\
+&< cn + a + b(n-1) // choose \ r = 1\\
+&< an  // choose \ a >> b, c\\
 \implies T_{mix}(n) &= O(n)
 \end{align*}
 
@@ -125,9 +119,10 @@ T_{mix}(n)
 
 \subsubsection{Recursive relation}
 \begin{align*}
-T_{mix}(n) &= T_{partition}(n) + T_{mix}(r-1) + T_{insert}(n-r)\\
-T_{partition}(n) &= O(n)\\
-T_{insert}(n-r) &= O((n-r)^2)
+T_{mix}(n)
+&= \sum_r \frac{1}{n}(T_{partition}(n) + T_{mix}(r) + T_{insert}(n-r))\\
+T_{partition}(m) &= O(m)\\
+T_{insert}(m) &= O(m^2)
 \end{align*}
 
 \subsubsection{Statement}
@@ -137,11 +132,9 @@ $T_{mix}(n) = O(n^2)$
 Induction hypothesis: $\forall m < n, T_{mix}(m) = O(m^2) < am^2$
 \begin{align*}
 T_{mix}(n)
-&= \sum_r \frac{1}{n}(T_{partition}(n) + T_{mix}(r-1) + T_{insert}(n-r))\\
-&< \sum_r \frac{1}{n}(cn + a(r-1)^2 + b(n-r)^2)\\
-&< \int_1^{n+1} \frac{1}{n}(cn + a(r-1)^2 + b(n-r)^2) dr\\
-&< \frac{a}{3} n^2 + cn + \frac{b}{3} n^2 \\
-&< an^2 \text{ // choose a large enough a}\\
+&< \sum_r \frac{1}{n}(cn + ar^2 + b(n-r)^2)\\
+&< \int_1^{n+1} \frac{1}{n}(cn + ar^2 + b(n-r)^2) dr\\
+&< an^2  // choose \ a >> b, c\\
 \implies T_{mix} &= O(n^2)
 \end{align*}
 
@@ -149,9 +142,9 @@ T_{mix}(n)
 
 \subsubsection{Recursive relation}
 \begin{align*}
-T_{mix}(n) &= T_{partition}(n) + T_{mix}(r-1) + T_{insert}(n-r)\\
-T_{partition}(n) &= O(n)\\
-T_{insert}(n-r) &= O((n-r)^2)
+T_{mix}(n) &= \max_r (T_{partition}(n) + T_{mix}(r) + T_{insert}(n-r))\\
+T_{partition}(m) &= O(m)\\
+T_{insert}(m) &= O(m^2)
 \end{align*}
 
 \subsubsection{Statement}
@@ -161,11 +154,9 @@ $T_{mix}(n) = O(n^2)$
 Induction hypothesis: $\forall m < n, T_{mix}(m) = O(m) < am^2$
 \begin{align*}
 T_{mix}(n)
-&= \max_r (T_{partition}(n) + T_{mix}(r-1) + T_{insert}(n-r))\\
-&< \max_r(cn + a(r-1)^2 + b(n-r)^2)\\
-&= \max (cn + b(n-1)^2, cn + a(n-1)^2)\\
-&= an^2 + (c-2a)n + a \text{ // choose a very large a}\\
-&< an^2 \text{ // choose a large enough a}\\
+&< \max_r(cn + ar^2 + b(n-r)^2)\\
+&= \max (cn + b(n-1)^2 + a, cn + a(n-1)^2)\\
+&< an^2  // choose \ a >> b, c\\
 \implies T_{mix} &= O(n^2)
 \end{align*}
 

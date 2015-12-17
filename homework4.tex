@@ -6,7 +6,7 @@
 \usepackage{graphicx}
 \usepackage{cite}
 \begin{document}
-\lstset{language=Java}
+\lstset{language=Java, tabsize=4}
 \title{CS350 homework 4}
 \author{Yuchen Hou}
 \maketitle
@@ -19,7 +19,7 @@ T_{bad}(n) &= \sum_r P(r) (T_{bad}(r) + T_{bad}(n-r) + T_{boundary}(r, n))\\
 T_{split}(n) &= O(n)\\
 T_{boundary}(r, n) &= O(r(n-r))
 \end{align*}
-\subsection{probability}
+\subsection{Probability}
 r follows binomial distribution:
 \begin{align*}
 r \sim B(n, p)
@@ -64,33 +64,24 @@ O(r(n-r)))\\
 &< an^2 \log n \text{ // choose a large enough a} \\
 \implies T_{bad} &= O(n^2 \log n)
 \end{align*}
+
 \section{Naive Karatsuba algorithm}
-In the worst case, for the ith multiplication:
-\begin{align*}
-\vert \beta_i \vert = in
-\end{align*}
-and the time complexity for each multiplication uising Karatsuba algorithm is:
-\begin{align*}
-T_k(\vert \beta_i \vert) = O(\vert \beta_i \vert^{1.59}) < a (in)^{1.59}
-\end{align*}
-And the total time complexity is:
+Let a = 1.59.
 \begin{align*}
 T_{naive}(n)
 &= \sum_i T_k(\vert \beta_i \vert)\\
-&< \sum_i a (in)^{1.59}\\
-&= a n^{1.59} \sum_i  i^{1.59}\\
-&= a n^{1.59} \int_i  i^{1.59} di\\
-&= a n^{1.59} b n^{2.59} di\\
-&= c n^{4.18}\\
-\implies T_{naive}(n) &= O(n^{4.18})
+&= \sum_i T_k(in)\\
+&= \sum_i O((in)^{a})\\
+&= n^{a} \sum_i  O(i^{a})\\
+&= n^{a} \int_i  O(i^{a}) di\\
+&= n^{a} O(i^{a + 1})\\
+&= O(n^{4.18})
 \end{align*}
+
 \section{Better Karatsuba algorithm}
-Let a = 1.59. From Karatsuma algorithm:
-\begin{align*}
-T_k(n) = O(n^a) < bn^a
-\end{align*}
+Let a = 1.59.
 This recursive algorithm essentially applys Karatsuma algorithm to pairs
-of string with length n, 2n, 4n, 8n ... nn. And its total time cost is the sum
+of string with length n, 2n, 4n, 8n ... And its total time cost is the sum
 of all the time costs of Karatsuma multiplications.
 \begin{align*}
 T_{better}(n)&= \frac{n}{2}T_k(n) \text{ // $\frac{n}{2}$ multiplications for
@@ -103,45 +94,40 @@ length 4n} \\
 &+ \frac{n}{2^{i}}T_k(2^{i-1}n) \text{ // $\frac{n}{2^{i}}$ multiplications
 for strings with length $2^{i-1}n$} \\
 & \ldots \\
-&+ \frac{n}{n}T_k(2^{\log n -1}n) \text{ // $1$ multiplications for
-strings with length $2^{\log n -1}n$} \\
+&+ \frac{n}{n}T_k(\frac{n}{2}n) \text{ // $1$ multiplications for strings with
+length $\frac{n}{2}n$} \\
 &= \sum_{i = 1}^{\log n} \frac{n}{2^{i}} T_k(2^{i-1}n) \\
-&< \sum_{i = 1}^{\log n} \frac{n}{2^{i}} b(2^{i-1}n)^a \\
-&< bn^{a+1} \sum_{i = 1}^{\log n} \frac{1}{2^{i}} (2^{i-1})^a \\
-&< \frac{bn^{a+1}}{2} \sum_{i = 1}^{\log n} \frac{1}{2^{i-1}} (2^a)^{i-1} \\
-&< \frac{bn^{a+1}}{2} \sum_{i = 0}^{\log n - 1} \frac{1}{2^i} (2^a)^i \\
-&< \frac{bn^{a+1}}{2} \sum_{i = 0}^{\log n - 1} (2^{a-1})^i \\
-&= \frac{bn^{a+1}}{2} \frac{1- z^{\log n}}{1 - z}
+&= \sum_{i = 1}^{\log n} \frac{n}{2^{i}} O((2^{i-1}n)^a) \\
+&= O(n^{a+1}) \sum_{i = 1}^{\log n} \frac{1}{2^{i}} (2^{i-1})^a \\
+&= O(n^{a+1}) \sum_{i = 1}^{\log n} (2^{a-1})^{i} \\
+&= O(n^{a+1}) (2^{a-1})^{\log n} \\
+&= O(n^{a+1}) n^{a-1} \\
+&= O(n^{2a}) \\
+&= O(n^{3.18})
 \end{align*}
-where $z = 2^{a-1} = 2^{0.59}$. Thus
-\begin{align*}
-T_{better}(n) = c n^{2.59} n^{0.59} = O(n^{3.18})
-\end{align*}
+
 \section{Closest airplanes}
-\subsection{Senario descriptions}
-Because $d \leq n$, all points(airplanes) are within a ball of diameter n and
-center P. This ball is bounded by a cube of dimension (n, n, n) and center P.
-The volume of the cube is
-\begin{align*}
-V = n^3
-\end{align*}
-This cube can be divided into $n^3$ unit cubes with dimension (1, 1, 1). Because
-$d \geq 1$, each cube can contain at most 8 points. Assume the closest pair has
-disdance x. As there are same amount of points and cubes, either every cube has
-exactely 1 point or one cube has more than 1 points. Eitherway, the closest
-pair must be in the same cube or adjacent cubes.
+\subsection{Formulation}
+This is a closest pair problem. $\forall p_1, p_2 \in planes \ d(p_1, p_2) \leq
+n \implies$ all p's are in a same cube of dimension (n, n, n). We can devide
+this cube into $n^3$ unit cubes with dimension (1, 1, 1). $d \geq 1 \implies$
+each cube can contain at most 8
+points. $\#_{point} = \#_{cube} \implies \forall cube$ cube contains 1
+point $\lor \exists cube$ cube contains more than 1 points. Eitherway, the
+closest pair must be in 1 of 27 adjacent cubes(the pair can be in the same cube).
 \subsection{Algorithm}
 \begin{lstlisting}
 (Point, Point) findClosestPair(ArrayList<Point> points) {
-	closestDistance = 1000n;
+	Float shortestDistance = n;
 	Point p1 = NULL;
 	Point p2 = NULL;
 	for (Point point1: points) {
-		for (Point point2: point1.findAllPointsInAdjacentCubes() {
-			if (distance(point1, point2) < closestDistance) {
+		for (Point point2: points.getPointsInAdjacentCubesOf(point1) {
+			Float newDistance = distance(point1, point2);
+			if (newDistance < shortestDistance) {
+				shortestDistance = newDistance;
 				p1 = point1;
 				p2 = point2;
-				closestDistance = distance(point1, point2);
 			}
 		}
 	}
@@ -149,40 +135,49 @@ pair must be in the same cube or adjacent cubes.
 }
 \end{lstlisting}
 \subsection{Time complexity}
-The outer for loop has $n^3$ iterations and the inner for loop has at most $8
-\times 27$ iterations (8 points per cube, 27 adjacent cubes, at maximum).
-All the processing within the inner loop and function
-findAllPointsInAdjacentCubes() cost time O(1). So the total time complexity is
+The outer for loop has $n^3$ iterations and the inner for loop has constant
+number of iterations (8 points per cube, 27 adjacent cubes). So the time
+complexity is:
 \begin{align*}
-T_{close}(n^3) = n^3 8 \times 27 O(1) = O(n^3)
+T_{close}(n^3) = n^3 O(1) = O(n^3)
 \end{align*}
+
 \section{Closest strings}
-This problem can be formulated as a closest points problem. Every string S can
-be represented as a point P(x, y):
+\subsection{Formulation}
+We can reduce the problem to a closest pair problem: convert every string S to a
+point (x, y) and return the shortest distance of all points:
 \begin{align*}
-x =& \#_a(S)\\
-y =& \#_b(S)\\
-x <& m // because \vert S \vert < m \\
-y <& m // because \vert S \vert < m \\
-d(S_1, S_2) =& (x_1-x_2)^2 + (y_1-y_2)^2 \geq 1
+x =& \#_a(S) \in \{0, 1, 2, \ldots m\}\\
+y =& \#_b(S) \in \{0, 1, 2, \ldots m\}\\
+distance(S_1, S_2) =& (x_1-x_2)^2 + (y_1-y_2)^2
 \end{align*}
-Therefore, all points are in a square of dimension $(m, m)$. Notice that for the
-preprocessing, the conversion of a string to a point has time complexity
-O(m), and the conversion of all strings has time complexity O(n m). There are 2
-senarios:
-\subsection{$\log n \leq m$}
-In this senario, standard closest pair algorithm can meet the requirement.
+Note there are only $(m + 1)^2$ possible distinct points. So $n > (m + 1)^2
+\implies \exists p_1, p_2 \in points: distance(p_1, p_2) = 0$.
+\subsection{Algorithm}
+\begin{lstlisting}
+Integer findSmallestDistance(ArrayList<String> strings) {
+	ArrayList<Point> points;
+	for (String string: strings) {
+		points.add(Point(#_a(string), #_b(string)));
+	}
+	if (n > (m + 1)^2) {
+		return 0;
+	} else {
+		return findClosestPair(points);
+	}
+}
+\end{lstlisting}
+\subsection{Time complexity}
+The for loop has time complexity nO(m) = O(mn). If $n > (m + 1)^2$:
 \begin{align*}
-T_{close}(n) =& O(nm) + O(n \log n) \leq O(nm) + O(n m) = O(nm)
+T_{close}(n)
+=& O(mn) + O(1)\\
+=& O(mn)
 \end{align*}
-\subsection{$\log n > m$}
+otherwise $n \leq (m + 1)^2 \implies O(\log(n) < O(\log(m)) < O(m))$:
 \begin{align*}
-n &> 2^m \implies n > m^2
-\end{align*}
-In this senario, the number of words are greater than the number of points.
-Therefore, at least 2 words are mapped to the same point. The distance of
-closest pair must be 0.
-\begin{align*}
-T_{close}(n) =& O(nm) + O(1) = O(nm)
+T_{close}(n)
+=& O(nm) + O(n \log n) \\
+=& O(nm)
 \end{align*}
 \end{document}

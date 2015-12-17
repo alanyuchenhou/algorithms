@@ -11,74 +11,74 @@
 \author{Yuchen Hou}
 \maketitle
 
-\section{NP reduction}
-We have the following observations:
+\section{Mapping reduction}
 \begin{align*}
-A \leq_m B \implies \exists T_1 \land \forall x_1 A(x_1) == yes \iff B(T_1(x_1))
-== yes \\
-B \leq_m C \implies \exists T_2 \land \forall x_2 B(x_2) == yes \iff C(T_2(x_2))
-== yes
+A \leq_m B \implies \exists f_1: \forall x_1 \ x_1 \in A \iff f_1(x_1) \in B\\
+B \leq_m C \implies \exists f_2: \forall x_2 \ x_2 \in B \iff f_2(x_2) \in C
 \end{align*}
-where $T_i$ is a deterministic polinomial time algorithm. Now we construct
-another deterministic polinomial time algorithm: $T_3(x_1) = T_2(T_1(x_1))$. We
-have:
+where $f_i$'s are deterministic polinomial time algorithms. We can construct
+another deterministic polinomial time algorithm: $f_3(x_1) = f_2(f_1(x_1))$
+reducing A to C:
 \begin{align*}
-&\forall x_1 A(x_1) == yes \iff B(T_1(x_1)) == yes \iff C(T_2(T_1(x_1))) == yes
-\iff C(T_3(x_1)) == yes \\
+&\forall x_1 \ x_1 \in A \iff f_1(x_1) \in B \iff f_2(f_1(x_1)) \in C \iff
+f_3(x_1) \in C \\
 &\implies A \leq_m C
 \end{align*}
 
-\section{NP solution}
+\section{NP}
 \begin{lstlisting}
-Boolean Q(G) {
-	guess(path); // |path| < p(|G|)
-	if (check(G, path) == yes) // complexity < p(|G|)
-		return yes;
-	else
-		crash;
+Boolean Q(Graph G) {
+	guess(path); // |path| < p(|V|)
+	if (check(G, path) == yes) // complexity < p(|V|) {
+		return true;
+	} else {
+		return false;
+	}
 }
 \end{lstlisting}
 Note:
 \begin{enumerate}
   \item guess(path): returns a path on G such that every node in G is covered
   exactely once
-  \item check(G, path): returns yes if path is on G and path covers every node
+  \item check(G, path): returns true if path is on G and path covers every node
   in G exactly once
-  \item $|G| = |V| + |E|$
 \end{enumerate}
 
-\section{NP solution}
+\section{NP}
 \begin{lstlisting}
-Boolean Q(G) {
-	guess(path); // |path| < p(|G|)
-	if (check(G, path) == yes) // complexity < p(|G|)
-		return yes;
-	else
-		crash;
+Boolean Q(Graph G) {
+	guess(path); // |path| < p(|E|)
+	if (check(G, path) == yes) // complexity < p(|E|) {
+		return true;
+	} else {
+		return false;
+	}
 }
 \end{lstlisting}
 Note:
 \begin{enumerate}
   \item guess(path): returns a path on G such that every node in G is covered
-  \item check(G, path): returns yes if path is on G and path covers every node
+  \item check(G, path): returns true if path is on G and path covers every node
   in G
 \end{enumerate}
 
 \section{SAT}
 \begin{lstlisting}
 Boolean isEquivalent(C1, C2) {
-	C3 = makeXnor(C1, C2); // |C3| < p(|C1|+|C2|)
-	if (isSatisfiable(C3)) { // complexity < p(|C1|+|C2|)
-		return false;
-	} else {
+	C3 = xnor(C1, C2); // |C3| < p(|C1|+|C2|)
+	if (!isSatisfiable(C3)) { // complexity < p(|C1|+|C2|)
 		return true;
+	} else {
+		return false;
 	}
 }
 \end{lstlisting}
-Note: makeXnor function creates a new circuit C3, which feeds its input $x = (x_1,
-\ldots x_n)$ to the input of C1 and C2, then feeds the output of C1 and C2 to a
-xnor gate X, and feeds the output of X to the output of C3. Now C1 and
-C2 are equivalent $\iff \forall x C1(x) == C2(x) \iff \forall x C3(x) == flase
-\iff !isSatisfiable(C3)$.
+\begin{align*}
+C3(x) &= C1(x) \ xnor \ C2(x) \\
+&\text{C1 and C2 are equivalent}\\
+&\iff \forall x \ C1(x) = C2(x)\\
+&\iff \forall x \ C3(x) = flase\\
+&\iff !isSatisfiable(C3)
+\end{align*}
 
 \end{document}
